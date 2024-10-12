@@ -5,6 +5,16 @@ import java.util.List;
 
 public class Customer {
     private String name;
+    private String address;
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
     private int id;
     private List<Ticket> tickets = new ArrayList<Ticket>();
 

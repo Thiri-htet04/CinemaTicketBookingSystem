@@ -7,10 +7,37 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class CinemaDao extends AbstractDao<Cinema>{
     private PgSqlConnectionFactory connectionFactory ;
+
+    @Override
+    public String getTableName() {
+        return "cinemas";
+    }
+
+    @Override
+    public Cinema convertToObj(ResultSet resultSet) throws SQLException {
+        Cinema cinema = new Cinema();
+        cinema.setId(resultSet.getInt("id"));
+        cinema.setName(resultSet.getString("name"));
+        cinema.setAddress(resultSet.getString("address"));
+        return cinema;
+
+    }
+
+    @Override
+    public String getCreateQuery() {
+        return "INSERT into " + this.getTableName() + "(name, address)" + " values (? , ?)";
+    }
+
+    @Override
+    public void prepareParam(PreparedStatement preparedStatement, Cinema cinema) throws SQLException {
+        preparedStatement.setString(1, cinema.getName());
+        preparedStatement.setString(2, cinema.getAddress());
+    }
 
     public CinemaDao(){
         this.connectionFactory = new PgSqlConnectionFactory();
@@ -28,19 +55,26 @@ public class CinemaDao extends AbstractDao<Cinema>{
             cinema.setId(resultSet.getInt("id"));
             cinema.setName(resultSet.getString("name"));
             cinema.setAddress(resultSet.getString("address"));
+            this.connectionFactory.closeConnection();
 
             return cinema;
         }
         return null;
     }
 
-    @Override
-    public List<Cinema> getAll() throws SQLException {
-        return null;
-    }
 
     @Override
-    public void create(Cinema entity) throws SQLException {
+    public void create(Cinema cinema) throws SQLException {
+        String sql = "INSERT INTO cinemas (name, address) VALUES (?, ?)";
+        Connection connection = this.connectionFactory.createConnection();
+        connection.prepareStatement(sql);
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        preparedStatement.setString(1, cinema.getName());
+        preparedStatement.setString(2, cinema.getAddress());
+        preparedStatement.executeUpdate();
+        this.connectionFactory.closeConnection();
+
+
 
     }
 

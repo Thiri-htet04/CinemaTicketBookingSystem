@@ -1,6 +1,7 @@
 package com.cinema.dao;
 
 import com.cinema.database.PgSqlConnectionFactory;
+import com.cinema.model.Cinema;
 import com.cinema.model.Customer;
 
 import java.sql.Connection;
@@ -12,6 +13,32 @@ import java.util.List;
 
 public class CustomerDao extends AbstractDao<Customer>{
     private PgSqlConnectionFactory connectionFactory;
+
+    @Override
+    public String getTableName() {
+        return "customers";
+    }
+
+    @Override
+    public Customer convertToObj(ResultSet resultSet) throws SQLException {
+        Customer customer = new Customer();
+        customer.setId(resultSet.getInt("id"));
+        customer.setName(resultSet.getString("name"));
+        return customer;
+    }
+
+    @Override
+    public String getCreateQuery() {
+        return "INSERT into " + this.getTableName() + " (name, address) values (?, ?)";
+    }
+
+    @Override
+    public void prepareParam(PreparedStatement preparedStatement, Customer customer) throws SQLException {
+        preparedStatement.setString(1, customer.getName());
+        preparedStatement.setString(2, customer.getAddress());
+
+    }
+
     public CustomerDao(){
         this.connectionFactory = new PgSqlConnectionFactory();
     }
@@ -27,32 +54,18 @@ public class CustomerDao extends AbstractDao<Customer>{
                     Customer customer = new Customer();
                     customer.setId(resultSet.getInt("id"));
                     customer.setName(resultSet.getString("name"));
+                    this.connectionFactory.closeConnection();
                     return customer;
                 }
 
             }
 
         }
+        this.connectionFactory.closeConnection();
+
         return null;
     }
 
-    @Override
-    public List<Customer> getAll() throws SQLException {
-        String query = "select * from customers";
-        List<Customer> customers = new ArrayList<>();
-        try(Connection connection = this.connectionFactory.createConnection();
-        PreparedStatement preparedStatement = connection.prepareStatement(query)){
-            try(ResultSet resultSet = preparedStatement.executeQuery()){
-                while(resultSet.next()){
-                    Customer customer = new Customer();
-                    customer.setId(resultSet.getInt("id"));
-                    customer.setName(resultSet.getString("name"));
-                    customers.add(customer);
-                }
-            }
-        }
-        return customers;
-    }
 
     @Override
     public void create(Customer customer) throws SQLException{
@@ -63,6 +76,8 @@ public class CustomerDao extends AbstractDao<Customer>{
             preparedStatement.executeUpdate();
 
         }
+        this.connectionFactory.closeConnection();
+
     }
 
     @Override
@@ -73,6 +88,7 @@ public class CustomerDao extends AbstractDao<Customer>{
         PreparedStatement preparedStatement = connection.prepareStatement(query);
         preparedStatement.setInt(1, customer.getId());
         preparedStatement.executeUpdate();
+        this.connectionFactory.closeConnection();
     };
 
 }

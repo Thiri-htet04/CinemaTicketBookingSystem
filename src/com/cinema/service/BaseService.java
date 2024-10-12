@@ -45,8 +45,8 @@ public abstract class BaseService <T>{
     }
     public void actionMenu(){
         System.out.println("Choose an action");
-        System.out.println("1: Find " + getEntity() + "by ID");
-        System.out.println("2: Get All" + getEntity());
+        System.out.println("1: Find " + getEntity() + " by ID");
+        System.out.println("2: Get All " + getEntity());
         System.out.println("3: Create a New " + getEntity());
         System.out.println("4: Delete a " + getEntity());
         System.out.println("5: Exit");
